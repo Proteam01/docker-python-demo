@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+    postgresql:
+        image: postgres:9.5
+        restart: always
+        volumes:
+            - ./data:/var/lib/postgresql/data/pgdata
+        ports:
+            - "5432:5432"
+        environment: 
+            POSTGRES_USER: docker-user
+            POSTGRES_DB: docker-user
+            POSTGRES_PASSWORD: sample
+            PGDATA: /var/lib/postgresql/data/pgdata
+        networks: 
+            - postgres
+
+    python:
+        build: 
+            context: .
+            dockerfile: python.dockerfile
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./app:/usr/src/app
+        depends_on: 
+            - postgresql
+        command: ['python','main.py']
+        networks:
+            - postgres
+        
+networks: 
+    postgres:
+        driver: bridge
